@@ -11,9 +11,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // This ensures process.env.API_KEY works in the client-side code
-      // without needing to change it to import.meta.env
-      'process.env': env
+      // Securely expose ONLY the Gemini API Key to the frontend.
+      // We do NOT expose 'env' directly to prevent BREVO_API_KEY from leaking to the browser.
+      'process.env.API_KEY': JSON.stringify(env.API_KEY)
     }
   };
 });
