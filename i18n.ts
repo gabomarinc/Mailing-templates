@@ -1,5 +1,3 @@
-import { AppLanguage } from './types';
-
 export const translations = {
   en: {
     subtitle: "Generate conversion-ready HTML emails.",

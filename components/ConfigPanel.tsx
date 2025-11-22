@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrandConfig, ContentConfig, AppState, AppLanguage } from '../types';
-import { Type, Palette, Send, RefreshCw, Settings, ChevronDown, ChevronUp, Globe } from 'lucide-react';
+import { Type, Palette, Send, RefreshCw, Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { translations } from '../i18n';
 
 interface ConfigPanelProps {
@@ -12,6 +12,8 @@ interface ConfigPanelProps {
   appState: AppState;
   appLanguage: AppLanguage;
   setAppLanguage: (lang: AppLanguage) => void;
+  showAdvanced: boolean;
+  setShowAdvanced: (show: boolean) => void;
 }
 
 const ConfigPanel: React.FC<ConfigPanelProps> = ({
@@ -22,10 +24,11 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   onGenerate,
   appState,
   appLanguage,
-  setAppLanguage
+  setAppLanguage,
+  showAdvanced,
+  setShowAdvanced
 }) => {
   const isLoading = appState === AppState.GENERATING;
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const t = translations[appLanguage];
 
   const handleBrandChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

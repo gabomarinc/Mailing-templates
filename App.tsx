@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ConfigPanel from './components/ConfigPanel';
 import PreviewPanel from './components/PreviewPanel';
@@ -16,8 +15,6 @@ const App: React.FC = () => {
   // Lead Capture State
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [userEmail, setUserEmail] = useState('');
 
   const [brand, setBrand] = useState<BrandConfig>({
     brandName: '',
@@ -40,8 +37,8 @@ const App: React.FC = () => {
     customVariables: ''
   });
 
-  const [showAdvanced, setShowAdvanced] = useState(false); // Tracked via ConfigPanel indirectly, but helpful to trigger updates if state lifts. 
-  // (Note: Since ConfigPanel manages its own collapse state locally, the ResizeObserver on document.body handles the actual height change detection automatically).
+  // Lifted state for Advanced panel to trigger resize observer
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Auto-resize logic for Iframe Embedding
   useEffect(() => {
@@ -67,7 +64,7 @@ const App: React.FC = () => {
       observer.disconnect();
       window.removeEventListener('resize', sendHeight);
     };
-  }, [appState, template, isUnlocked, showAdvanced]); // Re-calculate when UI state changes significantly
+  }, [appState, template, isUnlocked, showAdvanced]); 
 
   const handleGenerate = async () => {
     if (!content.campaignTopic) return;
@@ -91,7 +88,6 @@ const App: React.FC = () => {
         
         // Unlock content regardless of subscription success (optional UX choice)
         // or strictly require success: if (success) { ... }
-        setUserEmail(email);
         setIsUnlocked(true);
     } catch (error) {
         console.error("Subscription error", error);
@@ -115,6 +111,8 @@ const App: React.FC = () => {
                 appState={appState}
                 appLanguage={appLanguage}
                 setAppLanguage={setAppLanguage}
+                showAdvanced={showAdvanced}
+                setShowAdvanced={setShowAdvanced}
             />
             <PreviewPanel
                 template={template}
