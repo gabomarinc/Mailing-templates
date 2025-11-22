@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { GeneratedTemplate, AppState, AppLanguage } from '../types';
-import { Code, Eye, Check, Download, Smartphone, Monitor, FileText, Lock, Mail, X, Loader2 } from 'lucide-react';
+import { Code, Eye, Check, Download, Smartphone, Monitor, FileText, Lock, Mail, X, Loader2, Copy } from 'lucide-react';
 import { translations } from '../i18n';
 
 interface PreviewPanelProps {
@@ -183,7 +183,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
                 onClick={() => handleActionRequest(handleCopy)}
                 className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all"
             >
-                {copied ? <Check className="w-4 h-4 text-green-500" /> : (isUnlocked ? props => <props.icon /> : <Lock className="w-4 h-4" />)}
+                {copied ? <Check className="w-4 h-4 text-green-500" /> : (isUnlocked ? <Copy className="w-4 h-4" /> : <Lock className="w-4 h-4" />)}
                 {copied ? t.copied : t.copy}
             </button>
             <button
