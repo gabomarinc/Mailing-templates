@@ -41,8 +41,9 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
     setContent((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Changed: Removed h-full and overflow-y-auto. Added min-h-screen to ensure it fills space but grows.
   return (
-    <div className="w-full lg:w-1/3 bg-white border-r border-slate-200 h-full overflow-y-auto flex flex-col">
+    <div className="w-full lg:w-1/3 bg-white border-r border-slate-200 flex flex-col">
       <div className="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur z-10">
         <div>
           <div className="mb-2">

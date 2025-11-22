@@ -45,19 +45,26 @@ const App: React.FC = () => {
     const sendHeight = () => {
       // Only send message if we are inside an iframe
       if (window.self !== window.top) {
-        const height = document.documentElement.scrollHeight;
+        // We use Math.max to get the largest possible height to prevent cutting off
+        const height = Math.max(
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.offsetHeight
+        );
         window.parent.postMessage({ type: 'mailcraft-resize', height }, '*');
       }
     };
 
-    // Observe DOM changes
+    // Observe DOM changes on body to catch content growth
     const observer = new ResizeObserver(sendHeight);
     observer.observe(document.body);
     
     // Also listen for window resizing
     window.addEventListener('resize', sendHeight);
     
-    // Initial send
+    // Initial send with a small delay to ensure rendering
+    setTimeout(sendHeight, 100);
     sendHeight();
 
     return () => {
@@ -87,11 +94,9 @@ const App: React.FC = () => {
         await subscribeToNewsletter(email);
         
         // Unlock content regardless of subscription success (optional UX choice)
-        // or strictly require success: if (success) { ... }
         setIsUnlocked(true);
     } catch (error) {
         console.error("Subscription error", error);
-        // Fallback: unlock anyway so user isn't stuck?
         setIsUnlocked(true);
     } finally {
         setIsSubmittingEmail(false);
@@ -99,7 +104,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row w-full h-full min-h-[600px] flex-1 bg-slate-50 overflow-hidden">
+    // Changed: Removed h-full, overflow-hidden. Added min-h-screen to allow growth.
+    <div className="flex flex-col lg:flex-row w-full min-h-screen bg-slate-50">
        <div className="font-sans w-full flex flex-col lg:flex-row flex-1">
           <div className="wrapper-satoshi w-full flex flex-col lg:flex-row flex-1">
             <ConfigPanel
