@@ -1,0 +1,5 @@
+{
+  "name": "MailCraft AI",
+  "description": "Generate professional, brand-aligned HTML email templates compatible with Mailchimp, Brevo, and more using Gemini AI.",
+  "requestFramePermissions": []
+}
