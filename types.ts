@@ -1,5 +1,13 @@
 export type AppLanguage = 'en' | 'es' | 'pt';
 
+export type TemplateId = 'modern' | 'corporate' | 'newsletter' | 'promo';
+
+export interface TemplateOption {
+  id: TemplateId;
+  nameKey: string; // Key for i18n
+  descriptionKey: string; // Key for i18n
+}
+
 export interface BrandConfig {
   brandName: string;
   logoUrl: string;
@@ -12,6 +20,7 @@ export interface BrandConfig {
 
 export interface ContentConfig {
   language: AppLanguage;
+  templateId: TemplateId; // New field
   campaignTopic: string;
   keyMessage: string;
   audience: string;

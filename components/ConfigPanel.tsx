@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrandConfig, ContentConfig, AppState, AppLanguage } from '../types';
-import { Type, Palette, Send, RefreshCw, Settings, ChevronDown, ChevronUp } from 'lucide-react';
+import { Type, Palette, Send, RefreshCw, Settings, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
 import { translations } from '../i18n';
 
 interface ConfigPanelProps {
@@ -14,6 +14,7 @@ interface ConfigPanelProps {
   setAppLanguage: (lang: AppLanguage) => void;
   showAdvanced: boolean;
   setShowAdvanced: (show: boolean) => void;
+  onBackToTemplates: () => void; // New prop
 }
 
 const ConfigPanel: React.FC<ConfigPanelProps> = ({
@@ -26,7 +27,8 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   appLanguage,
   setAppLanguage,
   showAdvanced,
-  setShowAdvanced
+  setShowAdvanced,
+  onBackToTemplates
 }) => {
   const isLoading = appState === AppState.GENERATING;
   const t = translations[appLanguage];
@@ -41,44 +43,42 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
     setContent((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Changed: Removed h-full and overflow-y-auto. Added min-h-screen to ensure it fills space but grows.
   return (
     <div className="w-full lg:w-1/3 bg-white border-r border-slate-200 flex flex-col">
-      <div className="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur z-10">
-        <div>
-          <div className="mb-2">
-            <img 
-              src="https://konsul.digital/wp-content/uploads/2025/07/Logo-original-e1751717849441.png" 
-              alt="Konsul" 
-              className="h-10 w-auto object-contain"
-            />
+      <div className="p-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur z-10">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={onBackToTemplates}
+            className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors"
+            title={t.changeTemplate}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <div className="mb-0">
+                <img 
+                src="https://konsul.digital/wp-content/uploads/2025/07/Logo-original-e1751717849441.png" 
+                alt="Konsul" 
+                className="h-8 w-auto object-contain"
+                />
+            </div>
           </div>
-          <p className="text-sm text-slate-500 hidden sm:block">{t.subtitle}</p>
         </div>
         
-        {/* Interface Language Switcher */}
+        {/* Language Switcher */}
         <div className="flex bg-slate-100 rounded-lg p-1">
             <button 
                 onClick={() => setAppLanguage('en')}
                 className={`px-2 py-1 rounded text-xs font-bold transition-all ${appLanguage === 'en' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                title="English"
-            >
-                🇺🇸 EN
-            </button>
+            >🇺🇸</button>
             <button 
                 onClick={() => setAppLanguage('es')}
                 className={`px-2 py-1 rounded text-xs font-bold transition-all ${appLanguage === 'es' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                title="Español"
-            >
-                🇪🇸 ES
-            </button>
+            >🇪🇸</button>
             <button 
                 onClick={() => setAppLanguage('pt')}
                 className={`px-2 py-1 rounded text-xs font-bold transition-all ${appLanguage === 'pt' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                title="Português"
-            >
-                🇧🇷 PT
-            </button>
+            >🇧🇷</button>
         </div>
       </div>
 
@@ -99,7 +99,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                 value={brand.brandName}
                 onChange={handleBrandChange}
                 placeholder="e.g. Acme Corp"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#27bea5] focus:border-transparent transition-all"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#27bea5]"
               />
             </div>
 

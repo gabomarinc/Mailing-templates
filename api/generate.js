@@ -1,8 +1,6 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
 export default async function handler(req, res) {
-  // 1. CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -31,93 +29,90 @@ export default async function handler(req, res) {
   try {
     const ai = new GoogleGenAI({ apiKey });
 
-    // Determine language instruction
+    // Design Logic
+    let styleInstructions = "";
+    
+    switch (content.templateId) {
+        case 'corporate':
+            styleInstructions = `
+                **STYLE: CORPORATE PRO**
+                - Container: 600px width, sharp corners (border-radius: 0), white background.
+                - Header: Solid background color (${brand.primaryColor}). Logo left-aligned.
+                - Body: Professional grid, clear section dividers.
+                - Typography: Clean, formal.
+                - Button: Rectangular, no border radius.
+            `;
+            break;
+        case 'newsletter':
+            styleInstructions = `
+                **STYLE: EDITORIAL NEWSLETTER**
+                - Container: 640px max-width, transparent or white background.
+                - Header: Minimalist. Centered Logo. Thin line divider below logo.
+                - Body: Focus on readability. Large headings, increased line-height.
+                - Typography: Serif fonts preferred for headings if available.
+                - Button: Ghost button (outline) or simple text link style.
+            `;
+            break;
+        case 'promo':
+            styleInstructions = `
+                **STYLE: BOLD PROMO**
+                - Container: 600px, bright/bold background accents.
+                - Header: Large Hero Image area (placeholder).
+                - Body: Large font sizes for discount codes. Dashed borders for coupons.
+                - Button: Large, high contrast, centered.
+                - Colors: Use Secondary color aggressively for accents.
+            `;
+            break;
+        case 'modern':
+        default:
+            styleInstructions = `
+                **STYLE: MODERN CARD**
+                - Container: 640px, rounded corners (16px), shadow, floating effect.
+                - Header: Linear Gradient (${brand.primaryColor} to ${brand.secondaryColor}).
+                - Body: Card-based layout with soft gray backgrounds for sections.
+                - Button: Pill shaped (fully rounded).
+            `;
+            break;
+    }
+
     const languageInstruction = content.language === 'es' 
-      ? "The content of the email (headers, body, buttons) MUST be written in SPANISH." 
+      ? "The content MUST be in SPANISH." 
       : content.language === 'pt' 
-      ? "The content of the email (headers, body, buttons) MUST be written in PORTUGUESE." 
-      : "The content of the email (headers, body, buttons) MUST be written in ENGLISH.";
+      ? "The content MUST be in PORTUGUESE." 
+      : "The content MUST be in ENGLISH.";
 
     const prompt = `
       You are an expert HTML Email Developer.
-      Your task is to create a production-ready, responsive HTML email template compatible with Mailchimp, Brevo, and Outlook.
-      
-      **Design Directive:**
-      You MUST follow a specific visual style: "The Modern Card Style".
-      - **Container**: Centered 640px wide, white background, rounded corners (16px), shadow effect.
-      - **Header**: Gradient background using the brand's Primary and Secondary colors. White text for contrast.
-      - **Typography**: You MUST use this font stack: "${brand.fontFamily || 'Arial, Helvetica, sans-serif'}".
-      - **Cards**: Use secondary content blocks with light background colors (e.g., #f8fafc) and borders.
-      - **Buttons**: Full-width or large rounded buttons with the brand gradient. MUST include VML code for Outlook compatibility.
+      Create a responsive HTML email compatible with Mailchimp/Outlook.
 
-      **User Brand Configuration:**
-      - Brand Name: ${brand.brandName}
-      - Logo URL: ${brand.logoUrl || "https://via.placeholder.com/150x50/ffffff/000000?text=LOGO"}
-      - Primary Color (Gradient Start): ${brand.primaryColor}
-      - Secondary Color (Gradient End): ${brand.secondaryColor}
-      - Background Color (Page): ${brand.backgroundColor}
-      - Website: ${brand.websiteUrl}
-      - Font Family: ${brand.fontFamily}
+      ${styleInstructions}
 
-      **Content Context:**
-      - Language: ${languageInstruction}
-      - Campaign Topic: ${content.campaignTopic}
-      - Key Message: ${content.keyMessage}
-      - Audience: ${content.audience}
-      - CTA Button: "${content.ctaText}" -> ${content.ctaLink}
+      **Brand:**
+      - Name: ${brand.brandName}
+      - Logo: ${brand.logoUrl}
+      - Colors: ${brand.primaryColor}, ${brand.secondaryColor}
+      - Font: ${brand.fontFamily}
+
+      **Content:**
+      - Lang: ${languageInstruction}
+      - Topic: ${content.campaignTopic}
+      - Msg: ${content.keyMessage}
+      - CTA: ${content.ctaText} -> ${content.ctaLink}
       - Tone: ${content.tone}
-      - Custom Variables: ${content.customVariables || "None provided"}
+      - Vars: ${content.customVariables}
 
-      **Strict Output Requirements:**
-      1. **Structure**:
-         Use a standard HTML5 doctype but table-based layout for email clients.
-         The \`<html>\` tag must include \`xmlns:v="urn:schemas-microsoft-com:vml"\` and \`xmlns:o="urn:schemas-microsoft-com:office:office"\`.
-         Set the lang attribute correctly.
+      **Requirements:**
+      1. HTML5 table-based layout.
+      2. Inline CSS.
+      3. VML for Outlook buttons.
+      4. Responsive (@media max-width:600px).
       
-      2. **Reference Template Structure (Mimic this architecture):**
-         \`\`\`html
-         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
-           <tr>
-             <td align="center" style="padding: 24px;">
-               <!-- Main Card -->
-               <table role="presentation" class="container" width="640" style="width:640px; max-width:640px; background:#ffffff; border-radius:16px; overflow:hidden;">
-                 <!-- Gradient Header -->
-                 <tr>
-                   <td style="padding:0; background:linear-gradient(135deg, ${brand.primaryColor}, ${brand.secondaryColor});">
-                     <!-- Logo & Headline content goes here -->
-                   </td>
-                 </tr>
-                 <!-- Content Body -->
-                 <tr>
-                   <td style="padding:32px; font-family: ${brand.fontFamily};">
-                     <!-- Intro Text -->
-                     <!-- Info Cards -->
-                     <!-- Gradient Button (VML + Anchor) -->
-                   </td>
-                 </tr>
-               </table>
-             </td>
-           </tr>
-         </table>
-         \`\`\`
-
-      3. **Styling**:
-         - All CSS must be INLINED.
-         - Apply \`font-family: ${brand.fontFamily}\` to all text elements.
-         - Include a \`<style>\` block in the head ONLY for media queries (max-width: 640px).
-      
-      4. **Content Generation**:
-         - Write professional copy based on 'Tone' and 'Topic' in the requested LANGUAGE.
-         - **VARIABLES**: If "Custom Variables" are provided (e.g., "idea"), insert them as \`{{idea}}\`.
-         - **PLAIN TEXT**: Generate a Plain Text version suitable for MIME text/plain.
-
-      **Return Data:**
-      Return a JSON object strictly matching this schema:
+      **Return JSON:**
       {
-        "subjectLine": "Subject line here",
-        "previewText": "Preheader text here",
-        "html": "The complete HTML string starting with <!doctype html>...",
-        "plainText": "The plain text version..."
+        "subjectLine": "string",
+        "previewText": "string",
+        "html": "string (full html code)",
+        "plainText": "string"
       }
     `;
 
@@ -140,15 +135,20 @@ export default async function handler(req, res) {
     });
 
     const text = response.text;
-    if (!text) {
-      throw new Error("No response from Gemini");
-    }
+    if (!text) throw new Error("No response from Gemini");
 
-    const data = JSON.parse(text);
-    return res.status(200).json(data);
+    return res.status(200).json(JSON.parse(text));
 
   } catch (error) {
     console.error("Gemini API Error:", error);
+    
+    // Check for Specific Google Block error
+    if (JSON.stringify(error).includes("API_KEY_HTTP_REFERRER_BLOCKED")) {
+        return res.status(500).json({ 
+            error: "Security Config Error: Please go to Google AI Studio -> API Keys -> Edit Key -> Set 'Application Restrictions' to 'None'." 
+        });
+    }
+
     return res.status(500).json({ error: error.message || 'Failed to generate template' });
   }
 }

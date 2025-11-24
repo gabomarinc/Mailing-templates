@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ConfigPanel from './components/ConfigPanel';
 import PreviewPanel from './components/PreviewPanel';
-import { BrandConfig, ContentConfig, GeneratedTemplate, AppState, AppLanguage } from './types';
+import TemplateSelector from './components/TemplateSelector';
+import { BrandConfig, ContentConfig, GeneratedTemplate, AppState, AppLanguage, TemplateId } from './types';
 import { generateEmailTemplate } from './services/geminiService';
 import { subscribeToNewsletter } from './services/marketingService';
 
@@ -12,6 +13,9 @@ const App: React.FC = () => {
   // Language State
   const [appLanguage, setAppLanguage] = useState<AppLanguage>('en');
   
+  // Selection State
+  const [selectedTemplateId, setSelectedTemplateId] = useState<TemplateId | null>(null);
+
   // Lead Capture State
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
@@ -28,6 +32,7 @@ const App: React.FC = () => {
 
   const [content, setContent] = useState<ContentConfig>({
     language: 'en',
+    templateId: 'modern', // default
     campaignTopic: '',
     keyMessage: '',
     audience: '',
@@ -45,7 +50,6 @@ const App: React.FC = () => {
     const sendHeight = () => {
       // Only send message if we are inside an iframe
       if (window.self !== window.top) {
-        // We use Math.max to get the largest possible height to prevent cutting off
         const height = Math.max(
             document.body.scrollHeight,
             document.documentElement.scrollHeight,
@@ -56,14 +60,9 @@ const App: React.FC = () => {
       }
     };
 
-    // Observe DOM changes on body to catch content growth
     const observer = new ResizeObserver(sendHeight);
     observer.observe(document.body);
-    
-    // Also listen for window resizing
     window.addEventListener('resize', sendHeight);
-    
-    // Initial send with a small delay to ensure rendering
     setTimeout(sendHeight, 100);
     sendHeight();
 
@@ -71,7 +70,18 @@ const App: React.FC = () => {
       observer.disconnect();
       window.removeEventListener('resize', sendHeight);
     };
-  }, [appState, template, isUnlocked, showAdvanced]); 
+  }, [appState, template, isUnlocked, showAdvanced, selectedTemplateId]); 
+
+  const handleTemplateSelect = (id: TemplateId) => {
+    setSelectedTemplateId(id);
+    setContent(prev => ({ ...prev, templateId: id }));
+  };
+
+  const handleBackToTemplates = () => {
+    setSelectedTemplateId(null);
+    setTemplate(null);
+    setAppState(AppState.IDLE);
+  };
 
   const handleGenerate = async () => {
     if (!content.campaignTopic) return;
@@ -90,10 +100,7 @@ const App: React.FC = () => {
   const handleUnlock = async (email: string) => {
     setIsSubmittingEmail(true);
     try {
-        // Send to Brevo/Marketing Platform
         await subscribeToNewsletter(email);
-        
-        // Unlock content regardless of subscription success (optional UX choice)
         setIsUnlocked(true);
     } catch (error) {
         console.error("Subscription error", error);
@@ -103,8 +110,21 @@ const App: React.FC = () => {
     }
   };
 
+  // If no template is selected, show the selector
+  if (!selectedTemplateId) {
+    return (
+      <div className="w-full min-h-screen bg-slate-50 font-sans wrapper-satoshi">
+        <TemplateSelector 
+            onSelect={handleTemplateSelect} 
+            appLanguage={appLanguage}
+            setAppLanguage={setAppLanguage}
+        />
+      </div>
+    );
+  }
+
+  // Otherwise show the editor
   return (
-    // Changed: Removed h-full, overflow-hidden. Added min-h-screen to allow growth.
     <div className="flex flex-col lg:flex-row w-full min-h-screen bg-slate-50">
        <div className="font-sans w-full flex flex-col lg:flex-row flex-1">
           <div className="wrapper-satoshi w-full flex flex-col lg:flex-row flex-1">
@@ -119,6 +139,7 @@ const App: React.FC = () => {
                 setAppLanguage={setAppLanguage}
                 showAdvanced={showAdvanced}
                 setShowAdvanced={setShowAdvanced}
+                onBackToTemplates={handleBackToTemplates}
             />
             <PreviewPanel
                 template={template}

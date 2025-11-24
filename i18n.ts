@@ -60,7 +60,18 @@ export const translations = {
     
     // Meta
     subject: "Subject:",
-    preheader: "Preview Text:"
+    preheader: "Preview Text:",
+
+    // Templates
+    selectTemplateTitle: "Choose a Starting Point",
+    selectTemplateDesc: "Select a structure that best fits your campaign goal. You can customize the content in the next step.",
+    templates: {
+      modern: { name: "Modern Card", desc: "Rounded corners, gradient headers. Perfect for apps & SaaS." },
+      corporate: { name: "Corporate Pro", desc: "Clean, boxy, serious. Best for official announcements." },
+      newsletter: { name: "Editorial Newsletter", desc: "Minimalist, text-focused. Great for weekly digests." },
+      promo: { name: "Bold Promo", desc: "High impact, large visuals. Ideal for sales & offers." }
+    },
+    changeTemplate: "Change Template"
   },
   es: {
     subtitle: "Genera correos HTML listos para conversión.",
@@ -123,7 +134,18 @@ export const translations = {
     
     // Meta
     subject: "Asunto:",
-    preheader: "Pre-encabezado:"
+    preheader: "Pre-encabezado:",
+
+    // Templates
+    selectTemplateTitle: "Elige un Punto de Partida",
+    selectTemplateDesc: "Selecciona la estructura que mejor se adapte a tu objetivo. Podrás personalizar el contenido después.",
+    templates: {
+      modern: { name: "Tarjeta Moderna", desc: "Bordes redondeados, degradados. Ideal Apps y SaaS." },
+      corporate: { name: "Corporativo Pro", desc: "Limpio, cuadrado, serio. Para comunicados oficiales." },
+      newsletter: { name: "Newsletter Editorial", desc: "Minimalista, enfocado en texto. Para boletines." },
+      promo: { name: "Promo Impacto", desc: "Visuales grandes, colores fuertes. Ideal para ventas." }
+    },
+    changeTemplate: "Cambiar Plantilla"
   },
   pt: {
     subtitle: "Gere e-mails HTML prontos para conversão.",
@@ -186,6 +208,17 @@ export const translations = {
     
     // Meta
     subject: "Assunto:",
-    preheader: "Texto de Pré-visualização:"
+    preheader: "Texto de Pré-visualização:",
+
+    // Templates
+    selectTemplateTitle: "Escolha um Ponto de Partida",
+    selectTemplateDesc: "Selecione a estrutura que melhor se adapta ao seu objetivo. Você pode personalizar o conteúdo a seguir.",
+    templates: {
+      modern: { name: "Cartão Moderno", desc: "Bordas arredondadas, gradientes. Ideal para Apps." },
+      corporate: { name: "Corporativo Pro", desc: "Limpo, quadrado, sério. Para anúncios oficiais." },
+      newsletter: { name: "Newsletter Editorial", desc: "Minimalista, focado em texto. Para boletins." },
+      promo: { name: "Promo Impacto", desc: "Visuais grandes, cores fortes. Ideal para vendas." }
+    },
+    changeTemplate: "Mudar Modelo"
   }
 };
