@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { BrandConfig, ContentConfig, AppState, AppLanguage } from '../types';
-import { Type, Palette, Send, RefreshCw, Settings, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
+import { Type, Palette, Send, RefreshCw, Settings, ChevronDown, ChevronUp, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { translations } from '../i18n';
 
 interface ConfigPanelProps {
@@ -39,9 +40,19 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    
+    // Handle checkbox for AI Image toggle
+    if (type === 'checkbox') {
+        const checked = (e.target as HTMLInputElement).checked;
+        setContent((prev) => ({ ...prev, [name]: checked }));
+        return;
+    }
+
     setContent((prev) => ({ ...prev, [name]: value }));
   };
+
+  const isFormValid = content.campaignTopic && brand.websiteUrl;
 
   return (
     <div className="w-full lg:w-1/3 bg-white border-r border-slate-200 flex flex-col">
@@ -116,14 +127,17 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             </div>
 
              <div>
-              <label className="block text-xs font-medium text-slate-500 uppercase mb-1">{t.websiteUrl}</label>
+              <label className="block text-xs font-medium text-slate-500 uppercase mb-1">
+                {t.websiteUrl} <span className="text-red-500">*</span>
+              </label>
               <input
                 type="url"
                 name="websiteUrl"
                 value={brand.websiteUrl}
                 onChange={handleBrandChange}
                 placeholder="https://..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#27bea5]"
+                required
+                className={`w-full px-3 py-2 bg-slate-50 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#27bea5] ${!brand.websiteUrl && content.campaignTopic ? 'border-red-300' : 'border-slate-200'}`}
               />
             </div>
 
@@ -246,6 +260,42 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#27bea5]"
               />
             </div>
+            
+            {/* AI Banner Image Toggle */}
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+                        <ImageIcon className="w-4 h-4 text-[#27bea5]" />
+                        {t.enableAiImage}
+                    </label>
+                    <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input 
+                            type="checkbox" 
+                            name="generateImage" 
+                            id="toggle-image" 
+                            className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out checked:translate-x-full checked:border-[#27bea5]"
+                            checked={content.generateImage || false}
+                            onChange={handleContentChange}
+                        />
+                        <label htmlFor="toggle-image" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${content.generateImage ? 'bg-[#27bea5]/30' : 'bg-slate-300'}`}></label>
+                    </div>
+                </div>
+                
+                {content.generateImage && (
+                    <div className="mt-3 animate-in fade-in slide-in-from-top-1">
+                        <label className="block text-xs font-medium text-slate-500 uppercase mb-1">{t.imagePromptLabel}</label>
+                        <p className="text-xs text-slate-400 mb-2">{t.imagePromptDesc}</p>
+                        <textarea
+                            name="imagePrompt"
+                            value={content.imagePrompt || ''}
+                            onChange={handleContentChange}
+                            rows={2}
+                            placeholder={t.imagePromptPlaceholder}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#27bea5] resize-none"
+                        />
+                    </div>
+                )}
+            </div>
 
              <div>
               <label className="block text-xs font-medium text-slate-500 uppercase mb-1">{t.tone}</label>
@@ -316,6 +366,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
 
           {showAdvanced && (
             <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+               {/* Custom Variables */}
                <div>
                 <label className="block text-xs font-medium text-slate-500 uppercase mb-1">{t.customVariables}</label>
                 <p className="text-xs text-slate-400 mb-2 leading-relaxed">
@@ -330,6 +381,22 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#27bea5] font-mono text-xs"
                 />
                </div>
+
+               {/* Privacy Policy URL */}
+               <div className="pt-2 border-t border-slate-50 mt-2">
+                 <label className="block text-xs font-medium text-slate-500 uppercase mb-1">{t.privacyPolicyUrl}</label>
+                 <p className="text-xs text-slate-400 mb-2 leading-relaxed">
+                   {t.privacyPolicyDesc}
+                 </p>
+                 <input
+                    type="url"
+                    name="privacyPolicyUrl"
+                    value={brand.privacyPolicyUrl || ''}
+                    onChange={handleBrandChange}
+                    placeholder="https://..."
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#27bea5]"
+                 />
+               </div>
             </div>
           )}
         </section>
@@ -339,11 +406,11 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
       <div className="p-6 bg-slate-50 border-t border-slate-200 sticky bottom-0">
         <button
           onClick={onGenerate}
-          disabled={isLoading || !content.campaignTopic}
+          disabled={isLoading || !isFormValid}
           className={`
             w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-white font-medium shadow-lg transition-all
-            ${isLoading 
-                ? 'bg-[#27bea5]/70 cursor-not-allowed' 
+            ${isLoading || !isFormValid
+                ? 'bg-slate-300 cursor-not-allowed shadow-none' 
                 : 'bg-[#27bea5] hover:bg-[#20a08b] hover:shadow-xl active:transform active:scale-[0.98]'
             }
           `}
@@ -360,8 +427,11 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             </>
           )}
         </button>
-        {!content.campaignTopic && (
-            <p className="text-xs text-center text-red-400 mt-2">{t.missingTopic}</p>
+        {!isFormValid && (
+            <div className="text-xs text-center text-red-400 mt-2 space-y-1">
+                {!content.campaignTopic && <p>{t.missingTopic}</p>}
+                {!brand.websiteUrl && <p>{t.missingWebsite}</p>}
+            </div>
         )}
       </div>
     </div>

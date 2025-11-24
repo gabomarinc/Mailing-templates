@@ -1,10 +1,13 @@
+
 export const translations = {
   en: {
     subtitle: "Generate conversion-ready HTML emails.",
     brandIdentity: "Brand Identity",
     brandName: "Brand Name",
     logoUrl: "Logo URL",
-    websiteUrl: "Website URL",
+    websiteUrl: "Website URL (Required)",
+    privacyPolicyUrl: "Privacy Policy URL",
+    privacyPolicyDesc: "If left empty, the Website URL will be used for the footer link.",
     fontFamily: "Font Family",
     primary: "Primary",
     secondary: "Secondary",
@@ -31,7 +34,14 @@ export const translations = {
     messagePlaceholder: "What is the main thing you want to tell the user?",
     variablePlaceholder: "e.g. userName, order_id",
     missingTopic: "Please enter a campaign topic to start.",
+    missingWebsite: "Website URL is required.",
     
+    // AI Image
+    enableAiImage: "Generate AI Banner Image",
+    imagePromptLabel: "Image Description (Optional)",
+    imagePromptDesc: "Describe the image you want. If empty, AI will use the campaign topic.",
+    imagePromptPlaceholder: "e.g. A futuristic office with neon lights, minimal style",
+
     // Preview Panel
     readyToCraft: "Ready to Craft",
     readyDesc: "Configure your brand and campaign details on the left, then hit 'Generate Template' to see the magic happen.",
@@ -78,7 +88,9 @@ export const translations = {
     brandIdentity: "Identidad de Marca",
     brandName: "Nombre de Marca",
     logoUrl: "URL del Logo",
-    websiteUrl: "Sitio Web",
+    websiteUrl: "Sitio Web (Requerido)",
+    privacyPolicyUrl: "URL Política de Privacidad",
+    privacyPolicyDesc: "Si se deja vacío, se usará el Sitio Web para el enlace del pie de página.",
     fontFamily: "Tipografía",
     primary: "Primario",
     secondary: "Secundario",
@@ -105,6 +117,13 @@ export const translations = {
     messagePlaceholder: "¿Qué es lo principal que quieres comunicar?",
     variablePlaceholder: "ej. nombreUsuario, id_pedido",
     missingTopic: "Por favor ingresa un tema para comenzar.",
+    missingWebsite: "El Sitio Web es obligatorio.",
+
+    // AI Image
+    enableAiImage: "Generar Imagen Banner IA",
+    imagePromptLabel: "Descripción de Imagen (Opcional)",
+    imagePromptDesc: "Describe la imagen. Si lo dejas vacío, la IA usará el tema de la campaña.",
+    imagePromptPlaceholder: "ej. Una oficina futurista con luces neón, estilo minimalista",
 
     // Preview Panel
     readyToCraft: "Listo para Crear",
@@ -152,7 +171,9 @@ export const translations = {
     brandIdentity: "Identidade da Marca",
     brandName: "Nome da Marca",
     logoUrl: "URL do Logo",
-    websiteUrl: "Site",
+    websiteUrl: "Site (Obrigatório)",
+    privacyPolicyUrl: "URL Política de Privacidade",
+    privacyPolicyDesc: "Se deixado em branco, o Site será usado para o link do rodapé.",
     fontFamily: "Tipografia",
     primary: "Primário",
     secondary: "Secundário",
@@ -179,6 +200,13 @@ export const translations = {
     messagePlaceholder: "Qual é a principal mensagem que você quer passar?",
     variablePlaceholder: "ex. nomeUsuario, id_pedido",
     missingTopic: "Por favor insira um tópico para começar.",
+    missingWebsite: "O Site é obrigatório.",
+
+    // AI Image
+    enableAiImage: "Gerar Imagem de Banner IA",
+    imagePromptLabel: "Descrição da Imagem (Opcional)",
+    imagePromptDesc: "Descreva a imagem. Se vazio, a IA usará o tópico da campanha.",
+    imagePromptPlaceholder: "ex. Um escritório futurista com luzes neon, estilo minimalista",
 
     // Preview Panel
     readyToCraft: "Pronto para Criar",

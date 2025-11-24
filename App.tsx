@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import ConfigPanel from './components/ConfigPanel';
 import PreviewPanel from './components/PreviewPanel';
@@ -27,6 +28,7 @@ const App: React.FC = () => {
     secondaryColor: '#017b46', 
     backgroundColor: '#f5f7fb', 
     websiteUrl: '',
+    privacyPolicyUrl: '', // Initialized empty
     fontFamily: 'Arial, Helvetica, sans-serif'
   });
 
@@ -39,7 +41,9 @@ const App: React.FC = () => {
     ctaText: 'Get Started',
     ctaLink: '#',
     tone: 'professional',
-    customVariables: ''
+    customVariables: '',
+    generateImage: false, // Default false
+    imagePrompt: ''
   });
 
   // Lifted state for Advanced panel to trigger resize observer

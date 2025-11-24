@@ -1,3 +1,4 @@
+
 export type AppLanguage = 'en' | 'es' | 'pt';
 
 export type TemplateId = 'modern' | 'corporate' | 'newsletter' | 'promo';
@@ -15,6 +16,7 @@ export interface BrandConfig {
   secondaryColor: string;
   backgroundColor: string;
   websiteUrl: string;
+  privacyPolicyUrl?: string; // New optional field
   fontFamily: string;
 }
 
@@ -28,6 +30,8 @@ export interface ContentConfig {
   ctaLink: string;
   tone: 'professional' | 'friendly' | 'urgent' | 'minimalist';
   customVariables?: string;
+  generateImage?: boolean; // New: Toggle for AI Image
+  imagePrompt?: string; // New: Custom prompt for image
 }
 
 export interface GeneratedTemplate {

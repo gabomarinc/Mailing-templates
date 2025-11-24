@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 
 export default async function handler(req, res) {
@@ -81,6 +82,9 @@ export default async function handler(req, res) {
       ? "The content MUST be in PORTUGUESE." 
       : "The content MUST be in ENGLISH.";
 
+    // Logic for Privacy Link Fallback
+    const privacyLinkUrl = brand.privacyPolicyUrl || brand.websiteUrl;
+
     const prompt = `
       You are an expert HTML Email Developer.
       Create a responsive HTML email compatible with Mailchimp/Outlook.
@@ -92,6 +96,7 @@ export default async function handler(req, res) {
       - Logo: ${brand.logoUrl}
       - Colors: ${brand.primaryColor}, ${brand.secondaryColor}
       - Font: ${brand.fontFamily}
+      - Privacy Link: ${privacyLinkUrl}
 
       **Content:**
       - Lang: ${languageInstruction}
@@ -106,6 +111,8 @@ export default async function handler(req, res) {
       2. Inline CSS.
       3. VML for Outlook buttons.
       4. Responsive (@media max-width:600px).
+      5. Include a Footer with the Brand Name and a "Privacy Policy" link pointing to: ${privacyLinkUrl}
+      6. **IMPORTANT:** If the design calls for a main image or banner, use the placeholder EXACTLY: {{HERO_IMAGE_SRC}} in the img src attribute.
       
       **Return JSON:**
       {
@@ -116,6 +123,7 @@ export default async function handler(req, res) {
       }
     `;
 
+    // 1. Generate HTML Content
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
@@ -136,8 +144,44 @@ export default async function handler(req, res) {
 
     const text = response.text;
     if (!text) throw new Error("No response from Gemini");
+    
+    let generatedData = JSON.parse(text);
 
-    return res.status(200).json(JSON.parse(text));
+    // 2. Generate AI Image (If requested)
+    if (content.generateImage) {
+        try {
+            const imagePrompt = content.imagePrompt || `A professional banner image for an email campaign about ${content.campaignTopic}. Style: ${content.tone}. Brand colors: ${brand.primaryColor}`;
+            
+            const imageResponse = await ai.models.generateImages({
+                model: 'imagen-3.0-generate-001',
+                prompt: imagePrompt,
+                config: {
+                    numberOfImages: 1,
+                    outputMimeType: 'image/jpeg',
+                    aspectRatio: '16:9',
+                },
+            });
+
+            if (imageResponse.generatedImages && imageResponse.generatedImages.length > 0) {
+                const base64Image = imageResponse.generatedImages[0].image.imageBytes;
+                const mimeType = 'image/jpeg';
+                const imageSrc = `data:${mimeType};base64,${base64Image}`;
+                
+                // Replace placeholder in HTML
+                generatedData.html = generatedData.html.replace(/{{HERO_IMAGE_SRC}}/g, imageSrc);
+            }
+        } catch (imgError) {
+            console.error("Image generation failed:", imgError);
+            // Fallback to placeholder if image gen fails
+             generatedData.html = generatedData.html.replace(/{{HERO_IMAGE_SRC}}/g, 'https://placehold.co/600x300/e2e8f0/475569?text=Banner+Image');
+        }
+    } else {
+        // Remove placeholder or use default if no image requested
+        // Using a generic unsplash placeholder related to business/tech if not generated
+         generatedData.html = generatedData.html.replace(/{{HERO_IMAGE_SRC}}/g, 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&h=300&q=80');
+    }
+
+    return res.status(200).json(generatedData);
 
   } catch (error) {
     console.error("Gemini API Error:", error);
