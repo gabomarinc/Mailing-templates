@@ -79,9 +79,9 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
 
   // Render Empty State
   if (appState === AppState.IDLE) {
-    // Changed: Added min-h-[800px] to ensure embed iframe isn't too short on start
+    // Responsive min-height
     return (
-      <div className="flex-1 bg-slate-100 flex flex-col items-center justify-center p-8 text-center min-h-[800px]">
+      <div className="flex-1 bg-slate-100 flex flex-col items-center justify-center p-8 text-center min-h-[500px] lg:min-h-[800px]">
         <div className="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center mb-6 shadow-inner">
             <Eye className="w-10 h-10 text-slate-400" />
         </div>
@@ -96,7 +96,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
   // Render Loading State
   if (appState === AppState.GENERATING) {
      return (
-      <div className="flex-1 bg-slate-100 flex flex-col items-center justify-center p-8 text-center min-h-[800px]">
+      <div className="flex-1 bg-slate-100 flex flex-col items-center justify-center p-8 text-center min-h-[500px] lg:min-h-[800px]">
         <div className="relative w-24 h-24 mb-6">
             <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
             <div className="absolute inset-0 border-4 border-[#27bea5] rounded-full border-t-transparent animate-spin"></div>
@@ -112,7 +112,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
   // Render Error State
   if (appState === AppState.ERROR || !template) {
       return (
-      <div className="flex-1 bg-slate-50 flex flex-col items-center justify-center p-8 text-center min-h-[800px]">
+      <div className="flex-1 bg-slate-50 flex flex-col items-center justify-center p-8 text-center min-h-[500px] lg:min-h-[800px]">
         <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
             <div className="text-red-500 text-3xl">!</div>
         </div>
@@ -122,15 +122,15 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
     );
   }
 
-  // Changed: Removed h-full. Added min-h-[800px] to main container.
   return (
-    <div className="flex-1 bg-slate-100 flex flex-col relative min-h-[800px]">
+    <div className="flex-1 bg-slate-100 flex flex-col relative min-h-[600px] lg:min-h-[800px]">
       {/* Toolbar */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-0 z-20 shadow-sm">
-        <div className="flex items-center bg-slate-100 rounded-lg p-1">
+      <div className="bg-white border-b border-slate-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-0 z-20 shadow-sm">
+        {/* View Mode Switcher - Scrollable on very small screens */}
+        <div className="flex items-center bg-slate-100 rounded-lg p-1 w-full sm:w-auto overflow-x-auto no-scrollbar">
           <button
             onClick={() => setViewMode('preview')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap flex-1 sm:flex-none ${
               viewMode === 'preview' ? 'bg-white text-[#27bea5] shadow-sm' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
@@ -139,7 +139,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
           </button>
           <button
             onClick={() => setViewMode('code')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap flex-1 sm:flex-none ${
               viewMode === 'code' ? 'bg-white text-[#27bea5] shadow-sm' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
@@ -148,7 +148,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
           </button>
           <button
             onClick={() => setViewMode('text')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap flex-1 sm:flex-none ${
               viewMode === 'text' ? 'bg-white text-[#27bea5] shadow-sm' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
@@ -158,7 +158,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
         </div>
 
         {viewMode === 'preview' && (
-             <div className="flex items-center bg-slate-100 rounded-lg p-1">
+             <div className="flex items-center bg-slate-100 rounded-lg p-1 hidden sm:flex">
                 <button
                     onClick={() => setDeviceMode('desktop')}
                     className={`p-1.5 rounded-md transition-all ${
@@ -180,17 +180,17 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
              </div>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
                 onClick={() => handleActionRequest(handleCopy)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all"
+                className="flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all flex-1 sm:flex-none"
             >
                 {copied ? <Check className="w-4 h-4 text-green-500" /> : (isUnlocked ? <Copy className="w-4 h-4" /> : <Lock className="w-4 h-4" />)}
                 {copied ? t.copied : t.copy}
             </button>
             <button
                 onClick={() => handleActionRequest(handleDownload)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#27bea5] text-white rounded-md text-sm font-medium hover:bg-[#20a08b] transition-all shadow-sm"
+                className="flex items-center justify-center gap-2 px-3 py-1.5 bg-[#27bea5] text-white rounded-md text-sm font-medium hover:bg-[#20a08b] transition-all shadow-sm flex-1 sm:flex-none"
             >
                  {isUnlocked ? <Download className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 {t.export}
@@ -198,11 +198,16 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
         </div>
       </div>
 
-      {/* Content Area */}
-      <div className="flex-1 overflow-hidden relative flex items-center justify-center bg-slate-200/50 p-4">
+      {/* Content Area - Responsive Heights */}
+      <div className="flex-1 overflow-hidden relative flex items-center justify-center bg-slate-200/50 p-2 sm:p-4">
         {viewMode === 'preview' && (
           <div className={`bg-white shadow-xl transition-all duration-300 overflow-hidden ${
-              deviceMode === 'mobile' ? 'w-[375px] h-[667px] rounded-xl border-[8px] border-slate-800' : 'w-full h-[800px] rounded-lg'
+              // Mobile View Logic:
+              // On actual mobile device screens (lg:hidden), we default to a standard responsive height (e.g., 600px or h-full)
+              // On desktop screens, we respect the toggle state.
+              deviceMode === 'mobile' 
+                ? 'w-full max-w-[375px] h-[600px] sm:h-[667px] rounded-xl border-[4px] sm:border-[8px] border-slate-800' 
+                : 'w-full h-[600px] lg:h-[800px] rounded-lg'
           }`}>
              <iframe
                 srcDoc={template.html}
@@ -214,7 +219,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
         )}
 
         {viewMode === 'code' && (
-          <div className="w-full h-[800px] bg-[#1e1e1e] rounded-lg shadow-inner overflow-hidden flex flex-col">
+          <div className="w-full h-[600px] lg:h-[800px] bg-[#1e1e1e] rounded-lg shadow-inner overflow-hidden flex flex-col">
               <div className="flex items-center justify-between px-4 py-2 bg-[#252526] text-slate-400 text-xs border-b border-[#333]">
                   <span>index.html</span>
                   <span>{template.html.length} characters</span>
@@ -237,7 +242,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
         )}
 
         {viewMode === 'text' && (
-          <div className="w-full h-[800px] bg-white rounded-lg shadow-inner overflow-hidden flex flex-col border border-slate-200">
+          <div className="w-full h-[600px] lg:h-[800px] bg-white rounded-lg shadow-inner overflow-hidden flex flex-col border border-slate-200">
               <div className="flex items-center justify-between px-4 py-2 bg-slate-50 text-slate-500 text-xs border-b border-slate-200">
                   <span>Plain Text Version</span>
                   <span>{template.plainText.length} characters</span>
@@ -260,18 +265,18 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ template, appState, isUnloc
         )}
       </div>
       
-      {/* Meta info bar */}
+      {/* Meta info bar - Stacked on mobile */}
       {template && (
-        <div className="bg-white border-t border-slate-200 px-6 py-2 text-xs text-slate-500 flex gap-6 shrink-0">
-            <p><span className="font-semibold text-slate-700">{t.subject}</span> {template.subjectLine}</p>
-            <p><span className="font-semibold text-slate-700">{t.preheader}</span> {template.previewText}</p>
+        <div className="bg-white border-t border-slate-200 px-4 sm:px-6 py-3 text-xs text-slate-500 flex flex-col sm:flex-row gap-2 sm:gap-6 shrink-0">
+            <p className="truncate"><span className="font-semibold text-slate-700">{t.subject}</span> {template.subjectLine}</p>
+            <p className="truncate"><span className="font-semibold text-slate-700">{t.preheader}</span> {template.previewText}</p>
         </div>
       )}
 
       {/* Unlock Modal */}
       {showUnlockModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200 p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 relative animate-in zoom-in-95 duration-200">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 sm:p-8 relative animate-in zoom-in-95 duration-200 mx-auto">
             <button 
                 onClick={() => setShowUnlockModal(false)}
                 className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
