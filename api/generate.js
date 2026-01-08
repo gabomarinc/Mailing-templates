@@ -124,8 +124,9 @@ export default async function handler(req, res) {
     `;
 
     // 1. Generate HTML Content
+    // Using gemini-3-flash-preview for text generation
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -152,23 +153,36 @@ export default async function handler(req, res) {
         try {
             const imagePrompt = content.imagePrompt || `A professional banner image for an email campaign about ${content.campaignTopic}. Style: ${content.tone}. Brand colors: ${brand.primaryColor}`;
             
-            const imageResponse = await ai.models.generateImages({
-                model: 'imagen-3.0-generate-001',
-                prompt: imagePrompt,
-                config: {
-                    numberOfImages: 1,
-                    outputMimeType: 'image/jpeg',
-                    aspectRatio: '16:9',
+            // Using gemini-2.5-flash-image for image generation
+            const imageResponse = await ai.models.generateContent({
+                model: 'gemini-2.5-flash-image',
+                contents: {
+                    parts: [{ text: imagePrompt }],
                 },
+                config: {
+                    imageConfig: {
+                        aspectRatio: "16:9"
+                    }
+                }
             });
 
-            if (imageResponse.generatedImages && imageResponse.generatedImages.length > 0) {
-                const base64Image = imageResponse.generatedImages[0].image.imageBytes;
-                const mimeType = 'image/jpeg';
-                const imageSrc = `data:${mimeType};base64,${base64Image}`;
-                
-                // Replace placeholder in HTML
-                generatedData.html = generatedData.html.replace(/{{HERO_IMAGE_SRC}}/g, imageSrc);
+            let imageFound = false;
+            if (imageResponse.candidates?.[0]?.content?.parts) {
+                 for (const part of imageResponse.candidates[0].content.parts) {
+                    if (part.inlineData) {
+                        const base64EncodeString = part.inlineData.data;
+                        const mimeType = part.inlineData.mimeType || 'image/png';
+                        const imageSrc = `data:${mimeType};base64,${base64EncodeString}`;
+                        generatedData.html = generatedData.html.replace(/{{HERO_IMAGE_SRC}}/g, imageSrc);
+                        imageFound = true;
+                        break;
+                    }
+                 }
+            }
+            
+            if (!imageFound) {
+                 // Fallback if no inline data found
+                 throw new Error("No image data returned from model");
             }
         } catch (imgError) {
             console.error("Image generation failed:", imgError);
