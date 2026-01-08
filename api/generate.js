@@ -2,6 +2,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
 export default async function handler(req, res) {
+  // CORS Setup
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -19,12 +20,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { brand, content } = req.body;
+  // API Key Check
   const apiKey = process.env.API_KEY;
-
   if (!apiKey) {
-    console.error("API_KEY missing in server environment");
-    return res.status(500).json({ error: 'Server configuration error' });
+    console.error("CRITICAL: API_KEY is missing in server environment variables.");
+    return res.status(500).json({ error: 'Server configuration error: API_KEY missing' });
+  }
+
+  const { brand, content } = req.body;
+  if (!brand || !content) {
+      return res.status(400).json({ error: 'Missing brand or content data' });
   }
 
   try {
@@ -82,8 +87,7 @@ export default async function handler(req, res) {
       ? "The content MUST be in PORTUGUESE." 
       : "The content MUST be in ENGLISH.";
 
-    // Logic for Privacy Link Fallback
-    const privacyLinkUrl = brand.privacyPolicyUrl || brand.websiteUrl;
+    const privacyLinkUrl = brand.privacyPolicyUrl || brand.websiteUrl || '#';
 
     const prompt = `
       You are an expert HTML Email Developer.
@@ -124,7 +128,6 @@ export default async function handler(req, res) {
     `;
 
     // 1. Generate HTML Content
-    // Using gemini-3-flash-preview for text generation
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
@@ -143,17 +146,31 @@ export default async function handler(req, res) {
       },
     });
 
-    const text = response.text;
-    if (!text) throw new Error("No response from Gemini");
+    let text = response.text;
+    if (!text) {
+        console.error("Gemini returned empty text.");
+        throw new Error("No response from Gemini");
+    }
     
-    let generatedData = JSON.parse(text);
+    // Robust JSON Parsing: Remove markdown code blocks if present
+    text = text.trim();
+    if (text.startsWith('```')) {
+        text = text.replace(/^```(json)?\n/, '').replace(/```$/, '');
+    }
+
+    let generatedData;
+    try {
+        generatedData = JSON.parse(text);
+    } catch (e) {
+        console.error("JSON Parse Error. Raw Text:", text);
+        throw new Error("Failed to parse AI response. See console for details.");
+    }
 
     // 2. Generate AI Image (If requested)
     if (content.generateImage) {
         try {
             const imagePrompt = content.imagePrompt || `A professional banner image for an email campaign about ${content.campaignTopic}. Style: ${content.tone}. Brand colors: ${brand.primaryColor}`;
             
-            // Using gemini-2.5-flash-image for image generation
             const imageResponse = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image',
                 contents: {
@@ -182,7 +199,8 @@ export default async function handler(req, res) {
             
             if (!imageFound) {
                  // Fallback if no inline data found
-                 throw new Error("No image data returned from model");
+                 console.warn("Image generation success but no inline data found.");
+                 generatedData.html = generatedData.html.replace(/{{HERO_IMAGE_SRC}}/g, 'https://placehold.co/600x300/e2e8f0/475569?text=Banner+Image');
             }
         } catch (imgError) {
             console.error("Image generation failed:", imgError);
@@ -198,12 +216,12 @@ export default async function handler(req, res) {
     return res.status(200).json(generatedData);
 
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini API Error Handler:", error);
     
     // Check for Specific Google Block error
     if (JSON.stringify(error).includes("API_KEY_HTTP_REFERRER_BLOCKED")) {
         return res.status(500).json({ 
-            error: "Security Config Error: Please go to Google AI Studio -> API Keys -> Edit Key -> Set 'Application Restrictions' to 'None'." 
+            error: "Security Config Error: Please go to Google AI Studio -> API Keys -> Edit Key -> Set 'Application Restrictions' to 'None' for this environment." 
         });
     }
 
